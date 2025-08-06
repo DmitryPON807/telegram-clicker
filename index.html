@@ -1,500 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Coin Clicker</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --primary: #6d28d9;
-            --primary-dark: #4c1d95;
-            --accent: #f59e0b;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --success: #10b981;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .balance-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            transform: rotate(30deg);
-            animation: shine 3s infinite;
-        }
-        
-        @keyframes shine {
-            0% { transform: rotate(30deg) translate(-10%, -10%); }
-            100% { transform: rotate(30deg) translate(10%, 10%); }
-        }
-        
-        .balance-label {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 8px;
-        }
-        
-        .balance-amount {
-            font-size: 32px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-        
-        .coin-icon {
-            width: 36px;
-            height: 36px;
-            margin-right: 8px;
-        }
-        
-        .clicker-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        .coin {
-            width: 180px;
-            height: 180px;
-            background: linear-gradient(135deg, var(--accent), #f97316);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 
-                0 0 30px rgba(245, 158, 11, 0.4),
-                inset 0 -10px 20px rgba(0,0,0,0.2);
-            cursor: pointer;
-            user-select: none;
-            position: relative;
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #clicker { 
+            width: 200px; height: 200px; background: #007BFF; 
+            border-radius: 50%; margin: 30px auto; display: flex;
+            align-items: center; justify-content: center; 
+            color: white; font-size: 24px; cursor: pointer;
             transition: transform 0.1s;
-            animation: pulse 2s infinite;
         }
-        
-        .coin:active {
-            transform: scale(0.95);
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 50px rgba(245, 158, 11, 0.6); }
-            100% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.4); }
-        }
-        
-        .coin-inner {
-            width: 80%;
-            height: 80%;
-            background: linear-gradient(135deg, #fcd34d, #f59e0b);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 5px 15px rgba(255,255,255,0.3);
-        }
-        
-        .coin-symbol {
-            font-size: 48px;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        
-        .click-effect {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: scale(0);
-            animation: click-anim 0.5s forwards;
-        }
-        
-        @keyframes click-anim {
-            to {
-                transform: scale(2);
-                opacity: 0;
-            }
-        }
-        
-        .stats {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-        
-        .stat-value {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .boosts {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-        
-        .boost {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 12px;
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .boost-icon {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-        
-        .boost-name {
-            font-size: 12px;
-            margin-bottom: 4px;
-            text-align: center;
-        }
-        
-        .boost-price {
-            font-size: 10px;
-            color: var(--accent);
-        }
-        
-        .autoclicker-controls {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            border: none;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-weight: 600;
-            cursor: pointer;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:active {
-            background-color: var(--primary-dark);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            color: var(--text);
-            border: 2px solid var(--primary);
-        }
-        
-        .floating-coins {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-        }
-        
-        .floating-coin {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            animation: float-up 1s forwards;
-        }
-        
-        @keyframes float-up {
-            to {
-                transform: translateY(-100px);
-                opacity: 0;
-            }
-        }
+        #clicker:active { transform: scale(0.95); }
+        .stats { margin: 20px 0; font-size: 18px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Coin Clicker</h1>
-            <div>⚙️</div>
-        </div>
-        
-        <div class="balance-card">
-            <div class="balance-label">YOUR BALANCE</div>
-            <div class="balance-amount">
-                <div class="coin-icon">🪙</div>
-                <span id="balance">0</span>
-            </div>
-        </div>
-        
-        <div class="clicker-area" id="clickArea">
-            <div class="coin" id="coin">
-                <div class="coin-inner">
-                    <div class="coin-symbol">$</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-label">CLICKS</div>
-                <div class="stat-value" id="clicks">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">PER CLICK</div>
-                <div class="stat-value" id="perClick">1</div>
-            </div>
-        </div>
-        
-        <div class="boosts">
-            <div class="boost">
-                <div class="boost-icon">👆</div>
-                <div class="boost-name">Click Power</div>
-                <div class="boost-price">100 🪙</div>
-            </div>
-            <div class="boost">
-                <div class="boost-icon">⚡</div>
-                <div class="boost-name">Auto Clicker</div>
-                <div class="boost-price">500 🪙</div>
-            </div>
-            <div class="boost">
-                <div class="boost-icon">💎</div>
-                <div class="boost-name">Mega Click</div>
-                <div class="boost-price">1,200 🪙</div>
-            </div>
-        </div>
-        
-        <div class="autoclicker-controls">
-            <button class="btn btn-outline" id="startBtn">
-                <span>▶️</span> Auto
-            </button>
-            <button class="btn btn-primary" id="stopBtn" disabled>
-                <span>⏸️</span> Stop
-            </button>
-        </div>
+    <h1>Telegram Clicker</h1>
+    <div id="user-greeting">Загрузка...</div>
+    
+    <div class="stats">
+        <div>Кликов: <span id="clicks">0</span></div>
+        <div>Уровень: <span id="level">1</span></div>
     </div>
     
-    <div class="floating-coins" id="floatingCoins"></div>
-
+    <div id="clicker">КЛИК!</div>
+    
     <script>
-        // Telegram WebApp initialization
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Game state
-        let state = {
-            balance: 0,
+        // Получаем auth-параметры из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const authData = urlParams.get('auth');
+        
+        // Игровые данные
+        let gameData = {
+            auth: authData,
             clicks: 0,
-            perClick: 1,
-            autoClicker: false,
-            autoClickerInterval: null,
-            autoClickerSpeed: 1000
+            level: 1
         };
         
-        // DOM elements
-        const balanceEl = document.getElementById('balance');
-        const clicksEl = document.getElementById('clicks');
-        const perClickEl = document.getElementById('perClick');
-        const coinEl = document.getElementById('coin');
-        const clickAreaEl = document.getElementById('clickArea');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const floatingCoinsEl = document.getElementById('floatingCoins');
+        // Элементы интерфейса
+        const clicker = document.getElementById('clicker');
+        const clicksDisplay = document.getElementById('clicks');
+        const levelDisplay = document.getElementById('level');
+        const greeting = document.getElementById('user-greeting');
         
-        // Update UI
-        function updateUI() {
-            balanceEl.textContent = state.balance.toLocaleString();
-            clicksEl.textContent = state.clicks.toLocaleString();
-            perClickEl.textContent = state.perClick.toLocaleString();
-        }
-        
-        // Create click effect
-        function createClickEffect(x, y) {
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.style.left = `${x - 25}px`;
-            effect.style.top = `${y - 25}px`;
-            clickAreaEl.appendChild(effect);
-            
-            setTimeout(() => {
-                effect.remove();
-            }, 500);
-        }
-        
-        // Create floating coin
-        function createFloatingCoin(x, y, amount) {
-            for (let i = 0; i < Math.min(amount, 5); i++) {
-                const coin = document.createElement('div');
-                coin.className = 'floating-coin';
-                coin.style.left = `${x + (Math.random() * 40 - 20)}px`;
-                coin.style.top = `${y + (Math.random() * 40 - 20)}px`;
-                coin.style.transform = `scale(${0.5 + Math.random()})`;
-                floatingCoinsEl.appendChild(coin);
+        // Автозагрузка данных при открытии
+        function initApp() {
+            if (tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                greeting.innerHTML = `Привет, <b>${user.first_name}</b>!`;
                 
-                setTimeout(() => {
-                    coin.remove();
-                }, 1000);
+                // Здесь должен быть запрос к вашему API для загрузки сохраненных данных
+                // Для примера используем локальные данные
+                if (authData) {
+                    gameData.clicks = 100; // Пример: загружаем сохраненные данные
+                    gameData.level = 5;    // В реальности - с сервера
+                    updateUI();
+                }
             }
         }
         
-        // Handle click
-        function handleClick(e) {
-            const rect = coinEl.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            createClickEffect(e.clientX, e.clientY);
-            createFloatingCoin(centerX, centerY, state.perClick);
-            
-            state.balance += state.perClick;
-            state.clicks++;
+        // Обработчик кликов
+        clicker.addEventListener('click', () => {
+            gameData.clicks++;
+            if (gameData.clicks % 10 === 0) gameData.level++;
             updateUI();
             
-            // Add small bounce effect
-            coinEl.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                coinEl.style.transform = 'scale(1)';
-            }, 100);
-        }
-        
-        // Start autoclicker
-        function startAutoClicker() {
-            if (state.autoClicker) return;
-            
-            state.autoClicker = true;
-            state.autoClickerInterval = setInterval(() => {
-                const rect = coinEl.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                createClickEffect(centerX, centerY);
-                createFloatingCoin(centerX, centerY, state.perClick);
-                
-                state.balance += state.perClick;
-                state.clicks++;
-                updateUI();
-                
-                // Add small bounce effect
-                coinEl.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    coinEl.style.transform = 'scale(1)';
-                }, 100);
-            }, state.autoClickerSpeed);
-            
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-        }
-        
-        // Stop autoclicker
-        function stopAutoClicker() {
-            if (!state.autoClicker) return;
-            
-            clearInterval(state.autoClickerInterval);
-            state.autoClicker = false;
-            
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-        }
-        
-        // Event listeners
-        coinEl.addEventListener('click', handleClick);
-        startBtn.addEventListener('click', startAutoClicker);
-        stopBtn.addEventListener('click', stopAutoClicker);
-        
-        // Initialize
-        updateUI();
-        
-        // Telegram BackButton
-        tg.BackButton.onClick(() => {
-            tg.close();
+            // Автосохранение каждые 5 кликов
+            if (gameData.clicks % 5 === 0) {
+                tg.sendData(JSON.stringify(gameData));
+            }
         });
-        tg.BackButton.show();
+        
+        // Обновление интерфейса
+        function updateUI() {
+            clicksDisplay.textContent = gameData.clicks;
+            levelDisplay.textContent = gameData.level;
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Автосохранение при закрытии
+        tg.onEvent('viewportChanged', () => {
+            if (!tg.isExpanded) {
+                tg.sendData(JSON.stringify(gameData));
+            }
+        });
     </script>
 </body>
 </html>
